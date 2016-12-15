@@ -16,7 +16,7 @@ Currently some cases are treated differently to the XMLSerializer implementation
 - Invalid characters (ASCII control characters) that are invalid in XML 1.0 are removed on serialization. The browsers silently include those characters and on reparsing those documents throw a parser exception.
 - Dashes in comments are escaped to provide valid comments in XHTML. Firefox does not do this.
 - The `xmlns` attribute has higher precedence than the type of the DOM object passed to the serializer.
-- Small differences in style: no space in self-closing tag, empty value for boolean attributes, quoting of single apostrophes in attribute values.
+- Small differences in style: empty value for boolean attributes, quoting of single apostrophes in attribute values.
 
 This behaviour might become optional in the future.
 
@@ -31,6 +31,20 @@ Run tests and build for the browser
     $ npm install && npm test
 
 [![Build Status](https://travis-ci.org/cburgmer/xmlserializer.svg?branch=master)](https://travis-ci.org/cburgmer/xmlserializer)
+
+Options
+-------
+
+```serializeToString``` method has optional ```options``` parameter. It can have 2 boolean properties:
+
+```js
+{
+    useSelfClosingTags: true,
+    addSpaceBeforeEndOfSelfClosingTag: true
+}
+```
+
+```useSelfClosingTags``` controls whether to replace empty nodes with self-closing tags. ```addSpaceBeforeEndOfSelfClosingTag``` controls self-closing tag style.
 
 Example
 -------
