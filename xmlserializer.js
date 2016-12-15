@@ -126,8 +126,8 @@
     return {
         serializeToString: function (node, options) {
             options = options || {};
-            options.useSelfClosingTags = options.useSelfClosingTags == null ? true : options.useSelfClosingTags;
-            options.addSpaceBeforeEndOfSelfClosingTag = options.addSpaceBeforeEndOfSelfClosingTag != null;
+            options.useSelfClosingTags = options.useSelfClosingTags === undefined ? true : options.useSelfClosingTags;
+            options.addSpaceBeforeEndOfSelfClosingTag = options.addSpaceBeforeEndOfSelfClosingTag !== undefined;
 
             return removeInvalidCharacters(nodeTreeToXHTML(node, options, true));
         }
