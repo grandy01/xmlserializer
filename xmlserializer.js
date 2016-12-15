@@ -1,3 +1,4 @@
+/* eslint-disable */
 (function (root, factory) {
     if (typeof define === 'function' && define.amd) {
         define([], factory);
@@ -62,13 +63,13 @@
         }
     };
 
-    var serializeChildren = function (node) {
+    var serializeChildren = function (node, options) {
         return Array.prototype.map.call(node.childNodes, function (childNode) {
-            return nodeTreeToXHTML(childNode);
+            return nodeTreeToXHTML(childNode, options);
         }).join('');
     };
 
-    var serializeTag = function (node, isRootNode) {
+    var serializeTag = function (node, options, isRootNode) {
         var output = '<' + getTagName(node);
         output += serializeNamespace(node, isRootNode);
 
@@ -78,10 +79,14 @@
 
         if (node.childNodes.length > 0) {
             output += '>';
-            output += serializeChildren(node);
+            output += serializeChildren(node, options);
             output += '</' + getTagName(node) + '>';
         } else {
-            output += '/>';
+            if (options.useSelfClosingTags) {
+                output += (options.addSpaceBeforeEndOfSelfClosingTag ? ' ' : '') + '/>';
+            } else {
+                output += '></' + getTagName(node) + '>';
+            }
         }
         return output;
     };
@@ -102,15 +107,13 @@
         return '<![CDATA[' + node.nodeValue + ']]>';
     };
 
-    var nodeTreeToXHTML = function (node, options) {
-        var isRootNode = options && options.rootNode;
-
+    var nodeTreeToXHTML = function (node, options, isRootNode) {
         if (node.nodeName === '#document' ||
             node.nodeName === '#document-fragment') {
-            return serializeChildren(node);
+            return serializeChildren(node, options);
         } else {
             if (node.tagName) {
-                return serializeTag(node, isRootNode);
+                return serializeTag(node, options, isRootNode);
             } else if (node.nodeName === '#text') {
                 return serializeText(node);
             } else if (node.nodeName === '#comment') {
@@ -122,8 +125,12 @@
     };
 
     return {
-        serializeToString: function (node) {
-            return removeInvalidCharacters(nodeTreeToXHTML(node, {rootNode: true}));
+        serializeToString: function (node, options) {
+            options = options || {};
+            options.useSelfClosingTags = options.useSelfClosingTags == null ? true : options.useSelfClosingTags;
+            options.addSpaceBeforeEndOfSelfClosingTag = options.addSpaceBeforeEndOfSelfClosingTag != null;
+
+            return removeInvalidCharacters(nodeTreeToXHTML(node, options, true));
         }
     };
 }));
