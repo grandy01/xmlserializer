@@ -8,6 +8,14 @@
     }
 }(this, function () {
 
+    // Void elements must be self-closing according to https://www.w3.org/TR/html/syntax.html#void-elements
+    var voidElements = ['area', 'base', 'br', 'col', 'embed', 'hr',
+        'img', 'input', 'keygen', 'link', 'menuitem', 'meta', 'param', 'source', 'track', 'wbr'];
+
+    var isElementVoid = function (elementName) {
+        return voidElements.indexOf(elementName.toLowerCase()) !== -1;
+    };
+
     var removeInvalidCharacters = function (content) {
         // See http://www.w3.org/TR/xml/#NT-Char for valid XML 1.0 characters
         return content.replace(/[\x00-\x08\x0B\x0C\x0E-\x1F]/g, '');
@@ -69,7 +77,8 @@
     };
 
     var serializeTag = function (node, options, isRootNode) {
-        var output = '<' + getTagName(node);
+        var tagName = getTagName(node);
+        var output = '<' + tagName;
         output += serializeNamespace(node, isRootNode);
 
         Array.prototype.forEach.call(node.attributes || node.attrs, function (attr) {
@@ -79,12 +88,12 @@
         if (node.childNodes.length > 0) {
             output += '>';
             output += serializeChildren(node, options);
-            output += '</' + getTagName(node) + '>';
+            output += '</' + tagName + '>';
         } else {
-            if (options.useSelfClosingTags) {
+            if (options.useSelfClosingTags && isElementVoid(tagName)) {
                 output += (options.addSpaceBeforeEndOfSelfClosingTag ? ' ' : '') + '/>';
             } else {
-                output += '></' + getTagName(node) + '>';
+                output += '></' + tagName + '>';
             }
         }
         return output;
